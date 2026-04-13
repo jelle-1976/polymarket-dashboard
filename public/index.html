@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Polymarket Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; background: #0f172a; color: #e2e8f0; }
+    input, button { padding: 10px; margin: 6px 0; font-size: 14px; }
+    input { width: 420px; max-width: 100%; }
+    button { cursor: pointer; }
+    .card { background: #111827; border: 1px solid #334155; border-radius: 10px; padding: 16px; margin: 16px 0; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .pill { display: inline-block; padding: 4px 10px; margin-right: 8px; border-radius: 999px; background: #1e293b; border: 1px solid #334155; }
+    .warn { color: #fbbf24; }
+    .muted { color: #94a3b8; font-size: 13px; }
+    .ok { color: #86efac; }
+    .bad { color: #fca5a5; }
+  </style>
+</head>
+<body>
+  <h1>Polymarket Rapid Move Dashboard</h1>
+  <p class="muted">Track one or more market slugs and alert on fast percentage-point moves.</p>
+
+  <div class="card">
+    <div><label>Market slugs (comma separated)</label></div>
+    <input id="slugs" value="trump-wins-2028-election" />
+    <div class="row">
+      <div>
+        <div><label>Window seconds</label></div>
+        <input id="window" type="number" value="60" />
+      </div>
+      <div>
+        <div><label>Threshold (pp)</label></div>
+        <input id="threshold" type="number" step="0.5" value="5" />
+      </div>
+      <div>
+        <div><label>Cooldown seconds</label></div>
+        <input id="cooldown" type="number" value="180" />
+      </div>
+    </div>
+    <button id="apply">Apply</button>
+    <div id="status" class="muted" style="margin-top:10px">Starting...</div>
+  </div>
+
+  <div class="card">
+    <h2>Tracked outcomes</h2>
+    <div id="tracked"></div>
+  </div>
+
+  <div class="card">
+    <h2>Alerts</h2>
+    <div id="alerts"></div>
+  </div>
+
+<script src="/app.js"></script>
+</body>
+</html>
