@@ -211,6 +211,7 @@ wss.on("connection", (ws) => {
 });
 app.post("/api/send-alert", async (req, res) => {
   try {
+console.log("send-alert hit", req.body);
     const { question, outcome, deltaPp, fromPrice, toPrice } = req.body;
 
     const msg =
