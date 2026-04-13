@@ -3,6 +3,28 @@ const http = require("http");
 const path = require("path");
 const { WebSocketServer, WebSocket } = require("ws");
 
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
+
+async function sendTelegramMessage(text) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram error:", err.message);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
 const GAMMA_API = "https://gamma-api.polymarket.com";
 const POLYMARKET_WS = "wss://ws-subscriptions-clob.polymarket.com/ws/market";
@@ -186,6 +208,24 @@ wss.on("connection", (ws) => {
       }, 30000);
     }
   });
+});
+app.post("/api/send-alert", async (req, res) => {
+  try {
+    const { question, outcome, deltaPp, fromPrice, toPrice } = req.body;
+
+    const msg =
+      `🚨 Polymarket Alert\n` +
+      `${question}\n` +
+      `${outcome}\n` +
+      `Move: ${deltaPp.toFixed(2)} pp\n` +
+      `From: ${(fromPrice * 100).toFixed(2)}%\n` +
+      `To: ${(toPrice * 100).toFixed(2)}%`;
+
+    await sendTelegramMessage(msg);
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: "failed" });
+  }
 });
 
 server.listen(PORT, () => {

@@ -120,6 +120,18 @@ function applyPrice(assetId, price, ts) {
           toPrice: newest.price,
           deltaPp: (newest.price - oldest.price) * 100,
         });
+fetch("/api/send-alert", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    question: token.question,
+    slug: token.slug,
+    outcome: token.outcome,
+    fromPrice: oldest.price,
+    toPrice: newest.price,
+    deltaPp: (newest.price - oldest.price) * 100,
+  }),
+}).catch(() => {});
         state.alerts = state.alerts.slice(0, 50);
       }
     }
