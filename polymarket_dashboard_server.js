@@ -2,27 +2,52 @@ const express = require("express");
 const http = require("http");
 const path = require("path");
 const { WebSocketServer, WebSocket } = require("ws");
+const https = require("https");
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
 
-async function sendTelegramMessage(text) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+const https = require("https");
 
-  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
-  try {
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text,
-      }),
-    });
-  } catch (err) {
-    console.error("Telegram error:", err.message);
+function sendTelegramMessage(text) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log("Telegram missing config");
+    return;
   }
+
+  const data = JSON.stringify({
+    chat_id: TELEGRAM_CHAT_ID,
+    text,
+  });
+
+  const options = {
+    hostname: "api.telegram.org",
+    path: `/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(data),
+    },
+  };
+
+  const req = https.request(options, (res) => {
+    let body = "";
+
+    res.on("data", (chunk) => {
+      body += chunk;
+    });
+
+    res.on("end", () => {
+      console.log("Telegram response", res.statusCode, body);
+    });
+  });
+
+  req.on("error", (err) => {
+    console.error("Telegram error:", err.message);
+  });
+
+  req.write(data);
+  req.end();
 }
 
 const PORT = process.env.PORT || 3000;
