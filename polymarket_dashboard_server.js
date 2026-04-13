@@ -10,6 +10,7 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "";
 const https = require("https");
 
 function sendTelegramMessage(text) {
+  console.log("USING HTTPS TELEGRAM");
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.log("Telegram missing config");
     return;
