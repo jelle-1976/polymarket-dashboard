@@ -210,9 +210,11 @@ const res = await fetch("/api/start-session", {
       setStatus(msg.message || "Server message", "bad");
     }
   };
-state.browserWs.onclose = () => {
-  setStatus("Disconnected — reconnecting...", "bad");
-};
+
+  state.browserWs.onclose = () => {
+    setStatus("Disconnected", "bad");
+  };
+}  // <-- this closes startSession()
 
 document.getElementById("apply").addEventListener("click", startSession);
 startSession();
