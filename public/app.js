@@ -138,7 +138,11 @@ fetch("/api/send-alert", {
     deltaPp: (newest.price - oldest.price) * 100,
   }),
 }).catch(() => {});
-        state.alerts = state.alerts.slice(0, 50);
+
+state.alerts = state.alerts.slice(0, 50);
+
+// ✅ reset baseline after firing so the same move is not re-alerted
+state.history[assetId] = [{ ts: ts, price: newest.price }];
       }
     }
   }
