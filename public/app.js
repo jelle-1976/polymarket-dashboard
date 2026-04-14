@@ -153,25 +153,20 @@ function handleEvent(payload) {
   const eventType = payload.event_type;
   const ts = payload.timestamp ? Number(payload.timestamp) : Date.now();
 
-  // ✅ Only use real traded prices (no fake bid/ask spikes)
+  // Only use real executed trades
   if (eventType === "last_trade_price") {
-    applyPrice(payload.asset_id, Number(payload.price), ts);
-    return;
-  }
-
-  // ✅ Only use price_change if it contains actual trade price
-  if (eventType === "price_change") {
-    for (const change of payload.price_changes || []) {
-      if (change.price != null) {
-        applyPrice(change.asset_id, Number(change.price), ts);
-      }
+    const price = Number(payload.price);
+    if (Number.isFinite(price)) {
+      applyPrice(payload.asset_id, price, ts);
     }
     return;
   }
 
-  // ❌ Ignore best_bid_ask and book events (these caused fake alerts)
+  // Ignore orderbook-only events:
+  // - best_bid_ask
+  // - price_change
+  // - book
 }
-
 async function startSession() {
   state.tokens = {};
   state.prices = {};
