@@ -8,6 +8,12 @@ const state = {
   sessionId: null,
 };
 
+const slugsInput = document.getElementById("slugs");
+const savedSlugs = localStorage.getItem("savedSlugs");
+if (savedSlugs) {
+  slugsInput.value = savedSlugs;
+}
+
 function config() {
   return {
     slugs: document.getElementById("slugs").value.split(",").map(s => s.trim()).filter(Boolean),
@@ -172,7 +178,9 @@ async function startSession() {
   render();
 
   setStatus("Starting session...", "muted");
-  const res = await fetch("/api/start-session", {
+const slugsRaw = document.getElementById("slugs").value;
+  localStorage.setItem("savedSlugs", slugsRaw);
+const res = await fetch("/api/start-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ slugs: config().slugs })
