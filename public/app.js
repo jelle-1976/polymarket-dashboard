@@ -149,28 +149,27 @@ state.history[assetId] = [{ ts: ts, price: newest.price }];
 
   render();
 }
-
 function handleEvent(payload) {
   const eventType = payload.event_type;
   const ts = payload.timestamp ? Number(payload.timestamp) : Date.now();
 
-  if (eventType === "best_bid_ask") {
-    applyPrice(payload.asset_id, getMid(payload.best_bid, payload.best_ask), ts);
-  } else if (eventType === "last_trade_price") {
+  // ✅ Only use real traded prices (no fake bid/ask spikes)
+  if (eventType === "last_trade_price") {
     applyPrice(payload.asset_id, Number(payload.price), ts);
-  } else if (eventType === "price_change") {
-    for (const change of payload.price_changes || []) {
-      let price = getMid(change.best_bid, change.best_ask);
-      if (price == null) price = Number(change.price);
-      applyPrice(change.asset_id, price, ts);
-    }
-  } else if (eventType === "book") {
-    const bids = payload.bids || [];
-    const asks = payload.asks || [];
-    const bestBid = bids.length ? bids[bids.length - 1].price : null;
-    const bestAsk = asks.length ? asks[0].price : null;
-    applyPrice(payload.asset_id, getMid(bestBid, bestAsk), ts);
+    return;
   }
+
+  // ✅ Only use price_change if it contains actual trade price
+  if (eventType === "price_change") {
+    for (const change of payload.price_changes || []) {
+      if (change.price != null) {
+        applyPrice(change.asset_id, Number(change.price), ts);
+      }
+    }
+    return;
+  }
+
+  // ❌ Ignore best_bid_ask and book events (these caused fake alerts)
 }
 
 async function startSession() {
