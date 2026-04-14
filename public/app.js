@@ -212,12 +212,6 @@ const res = await fetch("/api/start-session", {
   };
 state.browserWs.onclose = () => {
   setStatus("Disconnected — reconnecting...", "bad");
-
-  setTimeout(() => {
-    if (state.sessionId) {
-      startSession();
-    }
-  }, 3000); // reconnect after 3 seconds
 };
 
 document.getElementById("apply").addEventListener("click", startSession);
