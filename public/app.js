@@ -210,11 +210,15 @@ const res = await fetch("/api/start-session", {
       setStatus(msg.message || "Server message", "bad");
     }
   };
+state.browserWs.onclose = () => {
+  setStatus("Disconnected — reconnecting...", "bad");
 
-  state.browserWs.onclose = () => {
-    setStatus("Disconnected", "bad");
-  };
-}
+  setTimeout(() => {
+    if (state.sessionId) {
+      startSession();
+    }
+  }, 3000); // reconnect after 3 seconds
+};
 
 document.getElementById("apply").addEventListener("click", startSession);
 startSession();
